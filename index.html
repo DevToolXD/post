@@ -1,78 +1,31 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>북마클릿 생성기</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #fff; display: flex; flex-direction: column; align-items: center; padding-top: 20vh; font-family: monospace; }
-    textarea { width: 800px; max-width: 90vw; height: 300px; padding: 20px; font-size: 14px; border: 2px solid #ddd; border-radius: 8px; outline: none; resize: vertical; }
-    textarea:focus { border-color: #cba6f7; }
-    #result { width: 800px; max-width: 90vw; margin-top: 20px; padding: 20px; background: #f5f5f5; border-radius: 8px; word-break: break-all; font-size: 12px; display: none; }
-    .label { margin-top: 10px; font-size: 14px; color: #666; }
-    button { margin-top: 10px; padding: 8px 16px; background: #cba6f7; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; display: none; }
-    button:hover { background: #b4befe; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>북마클릿 생성기</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#fff;display:flex;justify-content:center;align-items:center;height:100vh}
+textarea{width:700px;height:300px;padding:20px;font-size:14px;border:1px solid #eee;outline:none;resize:none;position:absolute;opacity:0}
+</style>
 </head>
 <body>
-  <textarea id="input" placeholder="fetch 코드를 여기에 붙여넣고 Enter를 누르세요..."></textarea>
-  <div class="label">Enter = 북마클릿 생성</div>
-  <div id="result"></div>
-  <button id="copyBtn" onclick="copyResult()">📋 복사</button>
-
-  <script>
-    const input = document.getElementById('input');
-    const result = document.getElementById('result');
-    const copyBtn = document.getElementById('copyBtn');
-
-    input.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        const code = input.value.trim();
-        if (!code.startsWith('fetch(')) {
-          result.style.display = 'block';
-          result.textContent = '올바른 fetch 코드를 입력해주세요.';
-          copyBtn.style.display = 'none';
-          return;
-        }
-
-        const script = `
-(function(){
-  var i = 0;
-  var max = 999999;
-  var delay = 1000;
-  var fetchCode = ${JSON.stringify(code)};
-  function run() {
-    if (i >= max) { console.log('완료'); return; }
-    i++;
-    try {
-      var p = eval(fetchCode);
-      if (p && typeof p.then === 'function') {
-        p.then(function(r){ return r.json(); })
-         .then(function(d){ console.log(i, d); })
-         .catch(function(e){ console.error(i, e); });
-      }
-    } catch(e) { console.error(i, e); }
-    setTimeout(run, delay);
+<textarea id="t" placeholder="fetch 코드 붙여넣고 Enter"></textarea>
+<script>
+var t=document.getElementById('t');
+t.focus();
+t.addEventListener('keydown',function(e){
+  if(e.key==='Enter'){
+    e.preventDefault();
+    var c=t.value.trim();
+    if(!c.startsWith('fetch(')){alert('fetch 코드를 입력하세요');return}
+    var s='(function(){var i=0;function r(){if(i>=999999){return}i++;try{var p=eval('+JSON.stringify(c)+');if(p&&p.then){p.then(function(r){return r.json()}).then(function(d){console.log(i,d)}).catch(function(e){console.error(i,e)})}}catch(e){console.error(i,e)}setTimeout(r,1000)}r()})()';
+    var b='javascript:'+encodeURIComponent(s.replace(/\n/g,' ').replace(/\s{2,}/g,' '));
+    navigator.clipboard.writeText(b).then(function(){t.value='✅ 복사 완료! 북마크에 저장하세요.\n\n'+b;t.style.opacity='1';t.select()}).catch(function(){t.value=b;t.style.opacity='1';t.select()})
   }
-  run();
-})();
-        `.replace(/\n/g, '').replace(/\s{2,}/g, ' ').trim();
-
-        const bookmarklet = 'javascript:' + encodeURIComponent(script);
-        result.style.display = 'block';
-        result.textContent = bookmarklet;
-        copyBtn.style.display = 'inline-block';
-      }
-    });
-
-    function copyResult() {
-      navigator.clipboard.writeText(result.textContent).then(() => {
-        copyBtn.textContent = '✅ 복사 완료!';
-        setTimeout(() => copyBtn.textContent = '📋 복사', 1500);
-      });
-    }
-  </script>
+});
+t.addEventListener('click',function(){t.style.opacity='1';t.focus()});
+</script>
 </body>
 </html>
