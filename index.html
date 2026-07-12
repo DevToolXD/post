@@ -3,129 +3,75 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>북마클릿 반복 요청 생성기</title>
+  <title>북마클릿 생성기</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', sans-serif; background: #1e1e2e; color: #cdd6f4; display: flex; justify-content: center; padding: 2rem; }
-    .container { max-width: 800px; width: 100%; background: #313244; border-radius: 1rem; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
-    h1 { color: #cba6f7; margin-bottom: 0.5rem; }
-    p { margin-bottom: 1.5rem; color: #a6adc8; font-size: 0.9rem; }
-    label { display: block; margin-top: 1rem; font-weight: bold; }
-    textarea, input { width: 100%; padding: 0.8rem; margin-top: 0.3rem; background: #45475a; color: #cdd6f4; border: 1px solid #585b70; border-radius: 0.5rem; resize: vertical; font-family: monospace; }
-    .row { display: flex; gap: 1rem; }
-    .row > div { flex: 1; }
-    button { padding: 0.8rem 1.5rem; background: #cba6f7; color: #1e1e2e; border: none; border-radius: 0.5rem; font-weight: bold; cursor: pointer; margin-top: 1rem; margin-right: 0.5rem; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #fff; display: flex; flex-direction: column; align-items: center; padding-top: 20vh; font-family: monospace; }
+    textarea { width: 800px; max-width: 90vw; height: 300px; padding: 20px; font-size: 14px; border: 2px solid #ddd; border-radius: 8px; outline: none; resize: vertical; }
+    textarea:focus { border-color: #cba6f7; }
+    #result { width: 800px; max-width: 90vw; margin-top: 20px; padding: 20px; background: #f5f5f5; border-radius: 8px; word-break: break-all; font-size: 12px; display: none; }
+    .label { margin-top: 10px; font-size: 14px; color: #666; }
+    button { margin-top: 10px; padding: 8px 16px; background: #cba6f7; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; display: none; }
     button:hover { background: #b4befe; }
-    #output { background: #45475a; padding: 1rem; border-radius: 0.5rem; word-break: break-all; font-size: 0.8rem; margin-top: 0.5rem; }
-    .warning { background: #f38ba8; color: #1e1e2e; padding: 0.8rem; border-radius: 0.5rem; margin-top: 1rem; font-size: 0.85rem; }
-    .note { background: #f9e2af; color: #1e1e2e; padding: 0.8rem; border-radius: 0.5rem; margin-top: 1rem; font-size: 0.85rem; }
-    hr { border-color: #585b70; margin: 1.5rem 0; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🚀 북마클릿 반복 요청 생성기</h1>
-    <p>Network 탭에서 복사한 <strong>fetch 코드</strong>를 붙여넣으면, 원하는 횟수만큼 반복 실행하는 북마클릿을 자동으로 만들어줍니다.</p>
-
-    <label>📋 1. fetch 코드 붙여넣기</label>
-    <textarea id="fetchCode" rows="8" placeholder="여기에 복사한 fetch(...) 코드를 붙여넣으세요"></textarea>
-
-    <div class="row">
-      <div>
-        <label>🔢 반복 횟수</label>
-        <input id="repeatCount" type="number" value="999999" min="1">
-      </div>
-      <div>
-        <label>⏱️ 간격 (밀리초)</label>
-        <input id="interval" type="number" value="1000" min="0">
-      </div>
-    </div>
-
-    <button onclick="generateBookmarklet()">📌 북마클릿 생성</button>
-    <button onclick="testFetch()" style="background:#a6e3a1;">🧪 현재 페이지에서 테스트</button>
-
-    <h2 style="margin-top:1.5rem;">📄 생성된 북마클릿 코드</h2>
-    <p style="margin-bottom:0.3rem;">아래 코드를 <strong>Ctrl+D → URL 칸에 붙여넣고 저장</strong>하세요. 그리고 대상 사이트에서 북마크를 클릭하면 실행됩니다.</p>
-    <div id="output">여기에 북마클릿 코드가 나타납니다...</div>
-    <button onclick="copyOutput()">📋 코드 복사</button>
-
-    <hr>
-    <h3>📖 사용 방법</h3>
-    <ol style="margin-left:1.5rem; color:#a6adc8;">
-      <li>개발자 도구(F12) → Network 탭 → 원하는 요청 우클릭 → <strong>Copy → Copy as fetch</strong></li>
-      <li>이 페이지에 붙여넣고 횟수, 간격 설정</li>
-      <li>"북마클릿 생성" 클릭</li>
-      <li>생성된 긴 코드를 복사</li>
-      <li>대상 사이트에 접속 → Ctrl+D → URL 칸에 코드 붙여넣고 저장</li>
-      <li>저장한 북마크 클릭 → 실행!</li>
-    </ol>
-
-    <div class="warning">
-      ⚠️ <strong>주의:</strong> 반드시 <strong>대상 사이트의 페이지 내에서</strong> 북마크를 클릭해야 정상 작동합니다. (CORS 회피)<br>
-      너무 빠른 간격(0ms)이나 과도한 요청은 IP 차단의 위험이 있으니, 교육/테스트 목적으로만 사용하세요.
-    </div>
-  </div>
+  <textarea id="input" placeholder="fetch 코드를 여기에 붙여넣고 Enter를 누르세요..."></textarea>
+  <div class="label">Enter = 북마클릿 생성</div>
+  <div id="result"></div>
+  <button id="copyBtn" onclick="copyResult()">📋 복사</button>
 
   <script>
-    function generateBookmarklet() {
-      const code = document.getElementById('fetchCode').value.trim();
-      const count = parseInt(document.getElementById('repeatCount').value) || 999999;
-      const delay = parseInt(document.getElementById('interval').value) || 1000;
+    const input = document.getElementById('input');
+    const result = document.getElementById('result');
+    const copyBtn = document.getElementById('copyBtn');
 
-      if (!code.startsWith('fetch(')) {
-        alert('올바른 fetch 코드를 입력해주세요.');
-        return;
-      }
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const code = input.value.trim();
+        if (!code.startsWith('fetch(')) {
+          result.style.display = 'block';
+          result.textContent = '올바른 fetch 코드를 입력해주세요.';
+          copyBtn.style.display = 'none';
+          return;
+        }
 
-      // 북마클릿 본체 (IIFE)
-      const script = `
+        const script = `
 (function(){
   var i = 0;
-  var max = ${count};
-  var delay = ${delay};
+  var max = 999999;
+  var delay = 1000;
   var fetchCode = ${JSON.stringify(code)};
   function run() {
-    if (i >= max) { console.log('✅ 완료 (' + max + '회)'); return; }
+    if (i >= max) { console.log('완료'); return; }
     i++;
     try {
       var p = eval(fetchCode);
       if (p && typeof p.then === 'function') {
         p.then(function(r){ return r.json(); })
-         .then(function(d){ console.log('✔ ' + i + '/' + max, d); })
-         .catch(function(e){ console.error('❌ ' + i, e); });
+         .then(function(d){ console.log(i, d); })
+         .catch(function(e){ console.error(i, e); });
       }
-    } catch(e) { console.error('❌ ' + i, e); }
+    } catch(e) { console.error(i, e); }
     setTimeout(run, delay);
   }
-  console.log('🚀 반복 전송 시작 (총 ' + max + '회, 간격 ' + delay + 'ms)');
   run();
 })();
-      `.replace(/\n/g, '').replace(/\s{2,}/g, ' ').trim();
+        `.replace(/\n/g, '').replace(/\s{2,}/g, ' ').trim();
 
-      const bookmarklet = 'javascript:' + encodeURIComponent(script);
-      document.getElementById('output').innerText = bookmarklet;
-    }
-
-    function copyOutput() {
-      const output = document.getElementById('output').innerText;
-      if (!output || output.includes('여기에')) {
-        alert('먼저 북마클릿을 생성해주세요.');
-        return;
+        const bookmarklet = 'javascript:' + encodeURIComponent(script);
+        result.style.display = 'block';
+        result.textContent = bookmarklet;
+        copyBtn.style.display = 'inline-block';
       }
-      navigator.clipboard.writeText(output).then(() => alert('복사 완료! 이제 Ctrl+D로 북마크에 저장하세요.'));
-    }
+    });
 
-    function testFetch() {
-      const code = document.getElementById('fetchCode').value.trim();
-      if (!code.startsWith('fetch(')) {
-        alert('fetch 코드를 입력해주세요.');
-        return;
-      }
-      console.log('🧪 테스트 요청 실행...');
-      try {
-        eval(code).then(r => r.json()).then(d => console.log('📦 응답:', d)).catch(e => console.error('❌ 에러:', e));
-      } catch(e) { console.error(e); }
-      alert('콘솔(F12)을 확인해주세요!');
+    function copyResult() {
+      navigator.clipboard.writeText(result.textContent).then(() => {
+        copyBtn.textContent = '✅ 복사 완료!';
+        setTimeout(() => copyBtn.textContent = '📋 복사', 1500);
+      });
     }
   </script>
 </body>
