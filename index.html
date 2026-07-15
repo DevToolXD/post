@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>북마클릿 생성기</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -19,9 +20,16 @@ t.addEventListener('keydown',function(e){
     e.preventDefault();
     var c=t.value.trim();
     if(!c.startsWith('fetch(')){alert('fetch 코드를 입력하세요');return}
-    var s='(function(){var i=0;function r(){if(i>=999999){return}i++;try{var p=eval('+JSON.stringify(c)+');if(p&&p.then){p.then(function(r){return r.json()}).then(function(d){console.log(i,d)}).catch(function(e){console.error(i,e)})}}catch(e){console.error(i,e)}setTimeout(r,100)}r()})()';
-    var b='javascript:'+encodeURIComponent(s.replace(/\n/g,' ').replace(/\s{2,}/g,' '));
-    navigator.clipboard.writeText(b).then(function(){t.value='✅ 복사 완료!\n\n'+b;t.style.opacity='1';t.select()}).catch(function(){t.value=b;t.style.opacity='1';t.select()})
+    var s='javascript:i=0;function r(){i++;try{var p=eval('+JSON.stringify(c)+');p.then(function(r){return r.json()}).then(function(d){console.log(i,d)}).catch(function(e){console.error(i,e)})}catch(e){console.error(i,e)}setTimeout(r,100)}r()';
+    navigator.clipboard.writeText(s).then(function(){
+      t.value='✅ 복사 완료!\n\n'+s;
+      t.style.opacity='1';
+      t.select()
+    }).catch(function(){
+      t.value=s;
+      t.style.opacity='1';
+      t.select()
+    })
   }
 });
 t.addEventListener('click',function(){t.style.opacity='1';t.focus()});
